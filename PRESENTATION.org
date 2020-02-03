@@ -150,8 +150,8 @@
 ** Distribution
 
   A functional package manager has the benefit of having a complete
-  description of an artifact by the closure property and content
-  addressing hashes in the heap.
+  description of an artifact in the closure and content addressing
+  hashes in the heap.
 
   This enables a mixed distribution model:
 
@@ -162,8 +162,8 @@
     called a substitute. (It /substitutes/ for a local "evaluation")
 
 
-  - Source: The evaluation of a package description on a local
-    machine.
+  - Source: The evaluation of a package description on the system
+    where the description is located.
 
 * Guix
 

@@ -57,12 +57,12 @@
 * What are paths though anyways?
 
   - Note on terminology. The following are overloaded and sometimes
-    used interchangeably both here and in nix and in guix.
+    used interchangeably both here, in nix, and in guix.
 
     + package - a guix installable artifact
     + derivation - a description of an installable artifact
     + component - a "unit of deployment" in the nix literature
-    + artifact - a "unit of deployment" in when I talk about it
+    + artifact - a "unit of deployment" when I talk about it
 
 ** Paths are to files what pointers are to memory addresses
 
@@ -96,11 +96,12 @@
    ...
    #+end_quote
 
-   - *Note* The rest of this table describes the analogy between
-     functional package management and pointer disciplines.
-     Functional package management doesn't actually describe perfect
-     pointer management like java or lisp or haskell.  It is closer to
-     c++ with a reasonable pointer discipline.
+   - *Note* The concepts described from now on don't actually describe
+     a strict pointer discipline. The rest of this table describes the
+     analogy between functional package management and pointer
+     disciplines. Functional package management cannot give you full
+     memory safety like java or lisp or haskell.  It is closer to c++
+     with a reasonable pointer discipline.
 
 ** Dependencies:
 
@@ -175,12 +176,12 @@
 
 *** Use a full programming language with existing libraries
 
-    I do have to say I felt immediately comfortable using Guile.  That
-    may be partly because of my particular preferences. I do think
+    I felt immediately comfortable using Guile.  That
+    may be because of my particular preferences. I think
     that scheme is very nice for functional programming (even if you
     are used to types).
 
-**** A nice programming interface.
+**** A nice programming interface
 
      Many real data types and records/structs (as opposed to using
      lists for everything).
@@ -237,10 +238,10 @@
 **** Quotation and staging code for building
 
      The idea of quotation is really nice for package description.
-     Package builds are described in quoted scheme. There is more,
+     Package builds are described in quoted scheme. There is more
      though. Sometimes evaluation needs to be delayed until build
-     time. So there are G-Expressions - a library to talk about the
-     store/heap and what to do with it.
+     time. This is solved by G-Expressions - a library to talk
+     about the store/heap and what to do with it.
 
      The following refers to something in the store. Nothing we can
      talk about locally.

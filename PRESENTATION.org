@@ -96,12 +96,11 @@
    ...
    #+end_quote
 
-   - *Note* The concepts described from now on don't actually describe
-     a strict pointer discipline. The rest of this table describes the
-     analogy between functional package management and pointer
-     disciplines. Functional package management cannot give you full
-     memory safety like java or lisp or haskell.  It is closer to c++
-     with a reasonable pointer discipline.
+   - *Note* The rest of this table describes the analogy between
+     functional package management and pointer disciplines.
+     Functional package management doesn't actually describe perfect
+     pointer management like java or lisp or haskell.  It is closer to
+     c++ with a reasonable pointer discipline.
 
 ** Dependencies:
 

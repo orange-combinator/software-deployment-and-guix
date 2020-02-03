@@ -113,18 +113,11 @@
   A directory that contains build artifacts and "other stuff" related
   to managing artifacts.
 
-  In Guix this lives in /gnu/store:
+** In Guix this lives in /gnu/store:
 
   #+begin_src shell
   ls /gnu/store | tail -n 5
   #+end_src
-
-  #+RESULTS:
-  | zzxx9zag1jlix8dh78n23zjmdqmv4ljg-guix-system-builder             |
-  | zzxyyqsxm52w4bf31cv4p821wrvvh1jz-rust-fuchsia-zircon-0.3.3.crate |
-  | zzzf3r7fv383kfrzx22awaynl5m935y8-rust-derive-more-0.13.0.tar.gz  |
-  | zzzjly6b9b9n7jq7zv67mzm4gz0mkz2s-microlens-0.4.10.tar.gz.drv     |
-  | zzzpwcjwyxfjs31jdbg5lrvnwwbxai6a-ghc-monadrandom-0.5.1.1.drv     |
 
 ** Hashes
 
@@ -137,6 +130,19 @@
    There is a lot more to say about hashes and drv files but they are
    quite implementation specific so I will refer you to the paper
    if you are interested.
+
+** Liveness and the symlink zoo
+
+   Artifacts in the heap are collected into a "profile".  One per user
+   and one for the system.  Thus administering packages is not a
+   priveleged activity.
+
+   The final delivery of artifacts is accomplished by symlinking
+   profiles to user directories. And defining some environment
+   variables.
+
+
+  The liveness model allows O(1) transactional upgrades and rollbacks.
 
 ** Distribution
 
@@ -152,12 +158,169 @@
     machines. The artifacts relocated from one system to another is
     called a substitute. (It /substitutes/ for a local "evaluation")
 
+
   - Source: The evaluation of a package description on a local
     machine.
 
 * Guix
 
   [[http://guix.gnu.org/][GNU Guix]] - A GNU project that implements a functional package
-  manager in Guile Scheme wherever possible
+  manager in Guile Scheme wherever possible.
 
-** Guile Scheme
+  A few core design goals define Guix
+
+** Hackability
+
+*** Use a full programming language with existing libraries
+
+    I do have to say I felt immediately comfortable using Guile.  That
+    may be partly because of my particular preferences. I do think
+    that scheme is very nice for functional programming (even if you
+    are used to types).
+
+**** A nice programming interface.
+
+     Many real data types and records/structs (as opposed to using
+     lists for everything).
+
+     Unified api for describing artifacts.
+
+     #+begin_src scheme :results output
+     (use-modules (gnu packages haskell-check)
+                  (gnu packages haskell-web)
+                  (gnu packages haskell-xyz)
+                  (guix build-system haskell)
+                  (guix packages)
+                  (guix download)
+                  ((guix licenses) #:prefix license:))
+
+     (define shellcheck-example
+       (package
+         (name "shellcheck")
+         (version "0.7.0")
+         (source
+          (origin
+            (method url-fetch)
+            (uri (string-append
+                  "https://hackage.haskell.org/package/ShellCheck/ShellCheck-"
+                  version ".tar.gz"))
+            (sha256
+             (base32 "1vx895cp5k5h0680xfwj74lk97m9y627n965x6srds0gfnbkzy9s"))
+            (file-name (string-append name "-" version ".tar.gz"))))
+         (build-system haskell-build-system)
+         (inputs
+          `(("ghc-aeson" ,ghc-aeson)
+            ("ghc-diff" ,ghc-diff)
+            ("ghc-quickcheck" ,ghc-quickcheck)
+            ("ghc-regex-tdfa" ,ghc-regex-tdfa)))
+         (home-page "https://github.com/koalaman/shellcheck")
+         (synopsis "Static analysis for shell scripts")
+         (description "@code{shellcheck} provides static analysis for
+     @command{bash} and @command{sh} shell scripts.
+     It gives warnings and suggestions in order to:
+
+     @enumerate
+     @item Point out and clarify typical beginner's syntax issues that cause
+     a shell to give cryptic error messages.
+     @item Point out and clarify typical intermediate level semantic problems
+     that cause a shell to behave strangely and counter-intuitively.
+     @item Point out subtle caveats, corner cases and pitfalls that may cause an
+     advanced user's otherwise working script to fail under future circumstances.
+     @end enumerate")
+         (license license:gpl3+)))
+
+     (format #t "~A~%" shellcheck-example)
+     #+end_src
+
+**** Quotation and staging code for building
+
+     #+begin_src
+
+     #+end_src
+
+*** Some utilities to smooth out the hacking experience
+
+    - guix repl - drop into a guile repl with the guix modules loaded
+
+      #+begin_example
+      guix repl
+      #+end_example
+
+    - guix edit - jump to the source of an artifact in ~$EDITOR~
+
+      #+begin_example
+      guix edit ghc
+      #+end_example
+
+    - guix import {crate,hackage,stackage,elpa} and more
+
+      Implemented in scheme and part of the official cli.
+
+*** Documentation
+
+    Good documentation. Available locally and on the web.
+    (Both Guile and Guix!)
+
+    - [[https://guix.gnu.org/manual/en/][The Guix Manual]]
+
+      #+begin_example
+      info guix
+      #+end_example
+
+    - [[https://www.gnu.org/software/guile/manual/][The Guile Manual]]
+
+      #+begin_example
+      info guile
+      #+end_example
+
+** Bootstrapping
+
+   Bootstrapping is a goal of many people in the project.
+
+   - Rustc - bootstrapped from mrustc at rust version 19
+
+   - [[https://www.gnu.org/software/mes/][GNU Mes]] - Created to reduce the binary seed in Guix (also to
+     address trusting trust attacks)
+
+   - GHC - An effort was made to bootstrap from HUGs, though ongoing
+
+   - SML - A current effort ongoing to bootstrap NJ SML
+
+** Reproducibility
+
+   It is a strong desire to find and reduce non-determinism in
+   artifact builds. This is hard though, and there is nothing stopping
+   unreproducible descriptions from getting in.
+
+   Tools for detection exist and determinism checking is a requirement
+   for patches to be merged.
+
+   #+begin_example
+   guix build --rounds=N --check shellcheck-example
+   #+end_example
+
+** Free Software
+
+   - No binary blobs whenever possible (deblobbed linux-libre kernel)
+
+   - No proprietary licensing in official repo.
+
+** Nice communities
+
+   A "modern" GNU project, complete with code of conduct.
+
+** Not strictly design goals, but other cool stuff going on
+
+   - GNU Hurd support is an active area of work
+
+   - High Performance Computing is quite actively supported
+
+   - Forthcoming formal methods working group
+
+** [[http://guix.gnu.org/contact/][Official communication channels]]
+
+   - #guix on irc
+
+   - active help, devel, and info mailing lists
+
+   - issues and patches managed via debbugs

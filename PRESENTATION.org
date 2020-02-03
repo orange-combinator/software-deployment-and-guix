@@ -73,9 +73,6 @@
 
     [[https://nixos.org/~eelco/pubs/phd-thesis.pdf][Eelco Dolstra - The Purely Functional Software Deployment Model]]
 
-    - Note the use of "Component" which is used to mean some
-      deployable artifact
-
    #+begin_quote
 
    | Programming Language                                              | Domain Deployment                       |

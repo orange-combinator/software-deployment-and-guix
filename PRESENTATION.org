@@ -1,0 +1,119 @@
+#+title: The Software Deployment Problem and Guix
+#+startup align
+
+* Have you ever written software that needs to work on another system?
+
+** If so:
+
+   You have most likely encountered the software deployment problem!
+
+** You will need to ensure:
+
+   - Dependencies are in place
+
+   - It's built for the right target architecture
+
+   - It contains no references to invalid paths
+
+   - Et cetera!
+
+** Some Examples
+
+   1. Missing dependencies
+      #+begin_example
+      Suppose you write a bash script for your coworker to automate
+      diffing images with ImageMagick.
+
+      You send it to your coworker and they run it only for the script
+      to die immediately.
+
+      You forgot they don't have ImageMagick installed!
+      #+end_example
+
+   2. Managing shared mutable dependencies
+      #+begin_example
+      Not to suggest apt is nothing other than perfect, but imagine
+      that a bug in apt was introduced where:
+
+      You install nodejs which in depends on python3.
+
+      You then install git which also depends on python3.
+
+      You recursively remove the git dependency which removes the
+      python3 dependency.
+
+      You then try to rebuild nodejs and it dies because where is
+      python3?
+      #+end_example
+
+      #+begin_example
+      glibc had an update which changed a behavior or something.
+
+      You have an old program looking in the same include/lib path as
+      the old glibc.
+
+      The program is now subtly busted.
+      #+end_example
+
+* What are paths though anyways?
+
+** Paths are to files what pointers are to memory addresses
+
+   "Functional package management" begins by "equating" file
+   system and memory.
+
+*** The following comes from Eelco Dolstra's Phd Thesis.
+
+    [[https://nixos.org/~eelco/pubs/phd-thesis.pdf][Eelco Dolstra - The Purely Functional Software Deployment Model]]
+
+    - Note the use of "Component" which is used to mean some
+      deployable artifact
+
+   #+begin_quote
+
+   | Programming Language                                              | Domain Deployment                       |
+   |-------------------------------------------------------------------+-----------------------------------------|
+   | Domain Concepts                                                   |                                         |
+   |-------------------------------------------------------------------+-----------------------------------------|
+   | memory                                                            | disk objects                            |
+   | (values)                                                          | components                              |
+   | addresses                                                         | path names                              |
+   | pointer dereference                                               | I/O                                     |
+   | pointer arithmetic                                                | string operations                       |
+   | dangling pointer                                                  | reference to absent component           |
+   | object graph                                                      | dependency graph                        |
+   |-------------------------------------------------------------------+-----------------------------------------|
+   | Kinds of dependencies                                             |                                         |
+   |-------------------------------------------------------------------+-----------------------------------------|
+   | calling already constructed object with reference to other object | runtime dependency through late binding |
+   | calling constructor with reference to other object, not stored    | build-time dependency                   |
+   | calling constructor with reference to other object, stored        | retained dependency                     |
+
+   ...
+   #+end_quote
+
+** Dependencies:
+
+   Other artifacts in the closure environment of an artifact
+
+** A "Functional package manager":
+
+   A program that manages the "heap" of the file system
+
+* The heap
+
+  A directory that contains build artifacts and "other stuff" related
+  to managing artifacts.
+
+  In Guix this lives in /gnu/store:
+
+  #+begin_src shell
+  ls /gnu/store | tail -n 5
+  #+end_src
+
+  #+RESULTS:
+  | zzxx9zag1jlix8dh78n23zjmdqmv4ljg-guix-system-builder             |
+  | zzxyyqsxm52w4bf31cv4p821wrvvh1jz-rust-fuchsia-zircon-0.3.3.crate |
+  | zzzf3r7fv383kfrzx22awaynl5m935y8-rust-derive-more-0.13.0.tar.gz  |
+  | zzzjly6b9b9n7jq7zv67mzm4gz0mkz2s-microlens-0.4.10.tar.gz.drv     |
+  | zzzpwcjwyxfjs31jdbg5lrvnwwbxai6a-ghc-monadrandom-0.5.1.1.drv     |

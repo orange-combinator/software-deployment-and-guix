@@ -234,23 +234,34 @@
 
 **** Quotation and staging code for building
 
-     #+begin_src
+     The idea of quotation is really nice for package description.
+     Package builds are described in quoted scheme. There is more,
+     though. Sometimes evaluation needs to be delayed until build
+     time. So there are G-Expressions - a library to talk about the
+     store/heap and what to do with it.
 
+     The following refers to something in the store. Nothing we can
+     talk about locally.
+
+     #+begin_src scheme
+     (use-modules (guix gexp)
+                  (gnu packages shells))
+     (format #t "~A~%" #~(string-append #$fish "/bin/fish"))
      #+end_src
 
 *** Some utilities to smooth out the hacking experience
 
     - guix repl - drop into a guile repl with the guix modules loaded
 
-      #+begin_example
+      #+begin_src shell
       guix repl
-      #+end_example
+      #+end_src
 
     - guix edit - jump to the source of an artifact in ~$EDITOR~
 
-      #+begin_example
+      #+begin_src shell
       guix edit ghc
-      #+end_example
+      #+end_src
 
     - guix import {crate,hackage,stackage,elpa} and more
 

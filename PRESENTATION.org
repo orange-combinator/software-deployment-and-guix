@@ -57,6 +57,14 @@
 
 * What are paths though anyways?
 
+  - Note on terminology. The following are overloaded and sometimes
+    used interchangeably both here and in nix and in guix.
+
+    + package - a guix installable artifact
+    + derivation - a description of an installable artifact
+    + component - a "unit of deployment" in the nix literature
+    + artifact - a "unit of deployment" in when I talk about it
+
 ** Paths are to files what pointers are to memory addresses
 
    "Functional package management" begins by "equating" file
@@ -94,7 +102,7 @@
 
 ** Dependencies:
 
-   Other artifacts in the closure environment of an artifact
+   The closure environment of an artifact
 
 ** A "Functional package manager":
 
@@ -117,3 +125,39 @@
   | zzzf3r7fv383kfrzx22awaynl5m935y8-rust-derive-more-0.13.0.tar.gz  |
   | zzzjly6b9b9n7jq7zv67mzm4gz0mkz2s-microlens-0.4.10.tar.gz.drv     |
   | zzzpwcjwyxfjs31jdbg5lrvnwwbxai6a-ghc-monadrandom-0.5.1.1.drv     |
+
+** Hashes
+
+   You'll notice the hashes. They are based on the build output and
+   those various .dvr files you see.
+
+   They are content-addressed hashes of an artifact's description
+   (derivation) and build output.
+
+   There is a lot more to say about hashes and drv files but they are
+   quite implementation specific so I will refer you to the paper
+   if you are interested.
+
+** Distribution
+
+  A functional package manager has the benefit of having a complete
+  description of an artifact by the closure property and content
+  addressing hashes in the heap.
+
+  This enables a mixed distribution model:
+
+  - Binary: the result of the evaluation of the package
+    description. So if an artifact is available in some known trusted
+    location (like a build farm) then it can be relocated across
+    machines. The artifacts relocated from one system to another is
+    called a substitute. (It /substitutes/ for a local "evaluation")
+
+  - Source: The evaluation of a package description on a local
+    machine.
+
+* Guix
+
+  [[http://guix.gnu.org/][GNU Guix]] - A GNU project that implements a functional package
+  manager in Guile Scheme wherever possible
+
+** Guile Scheme

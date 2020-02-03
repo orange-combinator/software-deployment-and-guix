@@ -1,5 +1,4 @@
 #+title: The Software Deployment Problem and Guix
-#+startup align
 
 * Have you ever written software that needs to work on another system?
 
